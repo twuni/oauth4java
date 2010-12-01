@@ -1,12 +1,9 @@
 package org.twuni.authentication.oauth;
 
-public class OAuthToken {
+abstract class OAuthToken {
 
 	private String key;
 	private String secret;
-
-	public OAuthToken() {
-	}
 
 	public OAuthToken( String key, String secret ) {
 		this.key = key;
@@ -17,12 +14,12 @@ public class OAuthToken {
 		return key;
 	}
 
-	public void setKey( String key ) {
-		this.key = key;
-	}
-
 	public String getSecret() {
 		return secret;
+	}
+
+	public void setKey( String key ) {
+		this.key = key;
 	}
 
 	public void setSecret( String secret ) {

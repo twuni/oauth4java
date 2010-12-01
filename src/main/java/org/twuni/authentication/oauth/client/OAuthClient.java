@@ -18,7 +18,8 @@ import net.oauth.ParameterStyle;
 import net.oauth.client.httpclient4.HttpClient4;
 
 import org.apache.commons.io.IOUtils;
-import org.twuni.authentication.oauth.OAuthToken;
+import org.twuni.authentication.oauth.AccessToken;
+import org.twuni.authentication.oauth.RequestToken;
 
 public abstract class OAuthClient {
 
@@ -31,9 +32,9 @@ public abstract class OAuthClient {
 
 	protected abstract String getAuthorizationUrl();
 
-	protected abstract String authorize( OAuthToken requestToken, String url );
+	protected abstract String authorize( RequestToken requestToken, String url );
 
-	protected abstract OAuthToken findExistingAccessToken();
+	protected abstract AccessToken findExistingAccessToken();
 
 	protected OAuthClient( String consumerKey, String consumerSecret, String callbackUrl ) throws IOException, OAuthException, URISyntaxException {
 
@@ -51,7 +52,7 @@ public abstract class OAuthClient {
 
 		try {
 
-			OAuthToken accessToken = findExistingAccessToken();
+			AccessToken accessToken = findExistingAccessToken();
 
 			accessor.accessToken = accessToken.getKey();
 			accessor.tokenSecret = accessToken.getSecret();
@@ -60,7 +61,7 @@ public abstract class OAuthClient {
 
 			client.getRequestToken( accessor );
 
-			OAuthToken requestToken = new OAuthToken( accessor.requestToken, accessor.tokenSecret );
+			RequestToken requestToken = new RequestToken( accessor.requestToken, accessor.tokenSecret );
 
 			String verifier = authorize( requestToken, getAuthorizationUrl( accessor.requestToken ) );
 			getAccessToken( verifier );

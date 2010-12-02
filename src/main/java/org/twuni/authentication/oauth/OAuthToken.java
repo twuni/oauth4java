@@ -2,10 +2,10 @@ package org.twuni.authentication.oauth;
 
 abstract class OAuthToken {
 
-	private String key;
-	private String secret;
+	protected final String key;
+	protected final String secret;
 
-	public OAuthToken( String key, String secret ) {
+	protected OAuthToken( String key, String secret ) {
 		this.key = key;
 		this.secret = secret;
 	}
@@ -16,14 +16,6 @@ abstract class OAuthToken {
 
 	public String getSecret() {
 		return secret;
-	}
-
-	public void setKey( String key ) {
-		this.key = key;
-	}
-
-	public void setSecret( String secret ) {
-		this.secret = secret;
 	}
 
 }

@@ -32,51 +32,45 @@ public abstract class OAuthClient {
 
 	protected abstract String getAuthorizationUrl();
 
-	protected abstract String authorize( RequestToken requestToken, String url );
+	private final OAuthServiceProvider provider = new OAuthServiceProvider( getRequestTokenUrl(), getAuthorizationUrl(), getAccessTokenUrl() );
 
-	protected abstract AccessToken findExistingAccessToken();
-
-	protected OAuthClient( String consumerKey, String consumerSecret, String callbackUrl ) throws IOException, OAuthException, URISyntaxException {
-
-		OAuthServiceProvider provider = new OAuthServiceProvider( getRequestTokenUrl(), getAuthorizationUrl(), getAccessTokenUrl() );
+	protected OAuthClient( String consumerKey, String consumerSecret, String callbackUrl ) {
 		OAuthConsumer consumer = new OAuthConsumer( callbackUrl, consumerKey, consumerSecret, provider );
-
 		accessor = new OAuthAccessor( consumer );
 		client = new net.oauth.client.OAuthClient( new HttpClient4() );
-
-		getAccessToken();
-
 	}
 
-	private void getAccessToken() throws IOException, OAuthException, URISyntaxException {
-
-		try {
-
-			AccessToken accessToken = findExistingAccessToken();
-
-			accessor.accessToken = accessToken.getKey();
-			accessor.tokenSecret = accessToken.getSecret();
-
-		} catch( Exception exception ) {
-
-			client.getRequestToken( accessor );
-
-			RequestToken requestToken = new RequestToken( accessor.requestToken, accessor.tokenSecret );
-
-			String verifier = authorize( requestToken, getAuthorizationUrl( accessor.requestToken ) );
-			getAccessToken( verifier );
-		}
-
+	public void setAccessToken( AccessToken accessToken ) {
+		accessor.accessToken = accessToken.getKey();
+		accessor.tokenSecret = accessToken.getSecret();
 	}
 
-	private void getAccessToken( String verifier ) throws IOException, OAuthException, URISyntaxException {
+	public RequestToken getRequestToken() throws IOException, OAuthException, URISyntaxException {
+		client.getRequestToken( accessor );
+		return new RequestToken( accessor.requestToken, accessor.tokenSecret );
+	}
+
+	public void setRequestToken( RequestToken requestToken ) {
+		accessor.requestToken = requestToken.getKey();
+		accessor.tokenSecret = requestToken.getSecret();
+	}
+
+	public AccessToken getAccessToken( String verifier ) throws IOException, OAuthException, URISyntaxException {
 		List<OAuth.Parameter> parameters = new ArrayList<OAuth.Parameter>();
 		parameters.add( new OAuth.Parameter( OAuth.OAUTH_VERIFIER, verifier ) );
 		client.getAccessToken( accessor, OAuthMessage.GET, parameters );
+		return getAccessToken();
 	}
 
-	private String getAuthorizationUrl( String requestToken ) {
-		return getAuthorizationUrl() + "?" + OAuth.OAUTH_TOKEN + "=" + requestToken;
+	public AccessToken getAccessToken() {
+		if( accessor.accessToken == null ) {
+			return null;
+		}
+		return new AccessToken( accessor.accessToken, accessor.tokenSecret );
+	}
+
+	public String getAuthorizationUrl( RequestToken requestToken ) {
+		return getAuthorizationUrl() + "?" + OAuth.OAUTH_TOKEN + "=" + requestToken.getKey();
 	}
 
 	private InputStream service( String method, String url ) throws IOException, OAuthException, URISyntaxException {

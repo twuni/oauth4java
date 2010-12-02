@@ -46,7 +46,9 @@ public abstract class OAuthClient {
 	}
 
 	public RequestToken getRequestToken() throws IOException, OAuthException, URISyntaxException {
-		client.getRequestToken( accessor );
+		if( accessor.requestToken == null || accessor.accessToken != null ) {
+			client.getRequestToken( accessor );
+		}
 		return new RequestToken( accessor.requestToken, accessor.tokenSecret );
 	}
 

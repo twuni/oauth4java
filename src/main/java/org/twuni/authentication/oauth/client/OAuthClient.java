@@ -45,9 +45,13 @@ public abstract class OAuthClient {
 		accessor.tokenSecret = accessToken.getSecret();
 	}
 
-	public RequestToken getRequestToken() throws IOException, OAuthException, URISyntaxException {
+	public RequestToken getRequestToken() {
 		if( accessor.requestToken == null || accessor.accessToken != null ) {
-			client.getRequestToken( accessor );
+			try {
+				client.getRequestToken( accessor );
+			} catch( Exception exception ) {
+				throw new RuntimeException( exception );
+			}
 		}
 		return new RequestToken( accessor.requestToken, accessor.tokenSecret );
 	}
@@ -57,10 +61,14 @@ public abstract class OAuthClient {
 		accessor.tokenSecret = requestToken.getSecret();
 	}
 
-	public AccessToken getAccessToken( String verifier ) throws IOException, OAuthException, URISyntaxException {
+	public AccessToken getAccessToken( String verifier ) {
 		List<OAuth.Parameter> parameters = new ArrayList<OAuth.Parameter>();
 		parameters.add( new OAuth.Parameter( OAuth.OAUTH_VERIFIER, verifier ) );
-		client.getAccessToken( accessor, OAuthMessage.GET, parameters );
+		try {
+			client.getAccessToken( accessor, OAuthMessage.GET, parameters );
+		} catch( Exception exception ) {
+			throw new RuntimeException( exception );
+		}
 		return getAccessToken();
 	}
 
